@@ -9,23 +9,24 @@
  * and reacts by incrementing the display. This is done in the usual clock
  * fashion: the hour increments when the minutes roll over to zero.
  * 
- * @author Michael Kölling and David J. Barnes
- * @version 2016.02.29
+ * @author Lirik Salihu
+ * @version 2024.10.07
  */
 public class ClockDisplay
 {
     private NumberDisplay hours;
     private NumberDisplay minutes;
-    private String displayString;    // simulates the actual display
-    
+    private String displayString; // simulates the actual display
+    private String meridian;      // stores AM/PM value
+
     /**
      * Constructor for ClockDisplay objects. This constructor 
      * creates a new clock set at 00:00.
      */
-    public ClockDisplay()
-    {
+    public ClockDisplay() {
         hours = new NumberDisplay(24);
         minutes = new NumberDisplay(60);
+        meridian = "AM";
         updateDisplay();
     }
 
@@ -34,8 +35,7 @@ public class ClockDisplay
      * creates a new clock set at the time specified by the 
      * parameters.
      */
-    public ClockDisplay(int hour, int minute)
-    {
+    public ClockDisplay(int hour, int minute) {
         hours = new NumberDisplay(24);
         minutes = new NumberDisplay(60);
         setTime(hour, minute);
@@ -45,40 +45,47 @@ public class ClockDisplay
      * This method should get called once every minute - it makes
      * the clock display go one minute forward.
      */
-    public void timeTick()
-    {
+    public void timeTick() {
         minutes.increment();
-        if(minutes.getValue() == 0) {  // it just rolled over!
+        if (minutes.getValue() == 0) { // it just rolled over!
             hours.increment();
         }
         updateDisplay();
     }
 
     /**
-     * Set the time of the display to the specified hour and
-     * minute.
+     * Set the time of the display to the specified hour and minute.
      */
-    public void setTime(int hour, int minute)
-    {
+    public void setTime(int hour, int minute) {
         hours.setValue(hour);
         minutes.setValue(minute);
         updateDisplay();
     }
 
     /**
-     * Return the current time of this display in the format HH:MM.
+     * Return the current time of this display in the format HH:MM AM/PM.
      */
-    public String getTime()
-    {
+    public String getTime() {
         return displayString;
     }
-    
+
     /**
      * Update the internal string that represents the display.
      */
-    private void updateDisplay()
-    {
-        displayString = hours.getDisplayValue() + ":" + 
-                        minutes.getDisplayValue();
+    private void updateDisplay() {
+        int hour = hours.getValue();
+        if (hour == 0) {
+            hour = 12;
+            meridian = "AM";
+        } else if (hour < 12) {
+            meridian = "AM";
+        } else if (hour == 12) {
+            meridian = "PM";
+        } else {
+            hour -= 12;
+            meridian = "PM";
+        }
+
+        displayString = String.format("%02d:%02d %s", hour, minutes.getValue(), meridian);
     }
 }
